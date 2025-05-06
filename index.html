@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FLOORSTOCK</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    /* Simple plus icon for buttons */
+    .icon-plus::before {
+      content: "+";
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+    /* Button hover effect */
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+  <div class="max-w-6xl mx-auto bg-white rounded-lg shadow p-6">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">FLOORSTOCK (Offline)</h1>
+
+    <div class="mb-6">
+      <label for="searchBarang" class="block mb-2 font-semibold text-gray-700">Cari Nama Barang:</label>
+      <input
+        type="text"
+        id="searchBarang"
+        placeholder="Cari nama barang..."
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:space-x-6">
+      <div class="flex-1 mb-4 md:mb-0">
+        <label for="kelompokSelect" class="block mb-2 font-semibold text-gray-700">Pilih Kelompok Barang:</label>
+        <select
+          id="kelompokSelect"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="" disabled selected>-- Pilih Kelompok --</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <button
+          id="addKelompokBtn"
+          class="mt-6 md:mt-0 bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto flex items-center justify-center icon-plus"
+          type="button"
+          aria-label="Tambah Kelompok"
+        >
+          Tambah Kelompok
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:space-x-6">
+      <div class="flex-1 mb-4 md:mb-0">
+        <label for="addBarangSelect" class="block mb-2 font-semibold text-gray-700">Pilih Kelompok untuk Tambah Barang:</label>
+        <select
+          id="addBarangSelect"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="" disabled selected>-- Pilih Kelompok --</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <button
+          id="addBarangBtn"
+          class="mt-6 md:mt-0 bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto flex items-center justify-center icon-plus"
+          type="button"
+          aria-label="Tambah Barang"
+        >
+          Tambah Barang
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <nav class="mb-4 border-b border-gray-300">
+        <button
+          id="tabTransaksi"
+          class="px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none"
+          type="button"
+        >
+          Transaksi
+        </button>
+        <button
+          id="tabRiwayat"
+          class="px-4 py-2 font-semibold text-gray-600 hover:text-blue-600 focus:outline-none"
+          type="button"
+        >
+          Riwayat
+        </button>
+      </nav>
+
+      <div id="tabContent" aria-live="polite" aria-atomic="true">
+        <!-- Konten tab akan muncul di sini -->
+      </div>
+    </div>
+
+    <div id="message" class="mt-6 text-center text-green-600 font-semibold" role="alert" aria-live="assertive"></div>
+  </div>
+
+  <!-- Modal Tambah Kelompok -->
+  <div id="modalKelompok" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" role="dialog" aria-modal="true" aria-labelledby="modalKelompokTitle">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+      <h3 id="modalKelompokTitle" class="text-xl font-semibold mb-4">Tambah Kelompok Barang</h3>
+      <input
+        type="text"
+        id="newKelompokName"
+        placeholder="Nama kelompok baru"
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        aria-label="Nama kelompok baru"
+      />
+      <div class="flex justify-end space-x-4">
+        <button id="cancelKelompokBtn" class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100">Batal</button>
+        <button id="saveKelompokBtn" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Barang -->
+  <div id="modalBarang" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" role="dialog" aria-modal="true" aria-labelledby="modalBarangTitle">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+      <h3 id="modalBarangTitle" class="text-xl font-semibold mb-4">Tambah Barang Baru</h3>
+      <label for="newBarangName" class="block mb-2 font-semibold text-gray-700">Nama Barang:</label>
+      <input
+        type="text"
+        id="newBarangName"
+        placeholder="Nama barang baru"
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        aria-label="Nama barang baru"
+      />
+      <label for="newBarangKelompok" class="block mb-2 font-semibold text-gray-700">Kelompok:</label>
+      <select
+        id="newBarangKelompok"
+        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+        aria-label="Kelompok barang baru"
+      >
+        <option value="" disabled selected>-- Pilih Kelompok --</option>
+      </select>
+      <div class="flex justify-end space-x-4">
+        <button id="cancelBarangBtn" class="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100">Batal</button>
+        <button id="saveBarangBtn" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const backendUrl = 'YOUR_DEPLOYED_WEB_APP_URL'; // Replace with your deployed Google Apps Script web app URL
+
+    // Utility function to make GET requests
+    async function apiGet(action) {
+      const url = new URL(backendUrl);
+      url.searchParams.append('action', action);
+      const response = await fetch(url);
+      return response.json();
+    }
+
+    // Utility function to make POST requests
+    async function apiPost(data) {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+
+    let dataKelompok = [];
+    let dataBarang = [];
+    let dataTransaksi = [];
+
+    const kelompokSelect = document.getElementById("kelompokSelect");
+    const addKelompokBtn = document.getElementById("addKelompokBtn");
+    const addBarangBtn = document.getElementById("addBarangBtn");
+    const addBarangSelect = document.getElementById("addBarangSelect");
+    const tabTransaksiBtn = document.getElementById("tabTransaksi");
+    const tabRiwayatBtn = document.getElementById("tabRiwayat");
+    const tabContent = document.getElementById("tabContent");
+    const message = document.getElementById("message");
+    const searchBarang = document.getElementById("searchBarang");
+
+    // Modal elements
+    const modalKelompok = document.getElementById("modalKelompok");
+    const newKelompokName = document.getElementById("newKelompokName");
+    const cancelKelompokBtn = document.getElementById("cancelKelompokBtn");
+    const saveKelompokBtn = document.getElementById("saveKelompokBtn");
+
+    const modalBarang = document.getElementById("modalBarang");
+    const newBarangName = document.getElementById("newBarangName");
+    const newBarangKelompok = document.getElementById("newBarangKelompok");
+    const cancelBarangBtn = document.getElementById("cancelBarangBtn");
+    const saveBarangBtn = document.getElementById("saveBarangBtn");
+
+    // Load initial data from backend
+    async function loadData() {
+      dataKelompok = await apiGet('getKelompok');
+      dataBarang = await apiGet('getBarang');
+      dataTransaksi = await apiGet('getTransaksi');
+      populateKelompok();
+    }
+
+    // Populate dropdown kelompok
+    function populateKelompok() {
+      // Clear existing options
+      kelompokSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kelompok --</option>';
+      addBarangSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kelompok --</option>';
+      newBarangKelompok.innerHTML = '<option value="" disabled selected>-- Pilih Kelompok --</option>';
+
+      dataKelompok.forEach(kelompokData => {
+        const option1 = document.createElement("option");
+        option1.value = kelompokData.id;
+        option1.textContent = kelompokData.name;
+        kelompokSelect.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = kelompokData.id;
+        option2.textContent = kelompokData.name;
+        addBarangSelect.appendChild(option2);
+
+        const option3 = document.createElement("option");
+        option3.value = kelompokData.id;
+        option3.textContent = kelompokData.name;
+        newBarangKelompok.appendChild(option3);
+      });
+    }
+
+    // Other UI and event handling functions would be adapted similarly to use backend data and API calls
+    // For brevity, only the initial data loading and kelompok population is shown here
+
+    // Event listeners for modal buttons
+    addKelompokBtn.addEventListener("click", () => {
+      newKelompokName.value = "";
+      modalKelompok.classList.remove("hidden");
+    });
+
+    cancelKelompokBtn.addEventListener("click", () => {
+      modalKelompok.classList.add("hidden");
+    });
+
+    saveKelompokBtn.addEventListener("click", async () => {
+      const newName = newKelompokName.value.trim();
+      if (!newName) {
+        alert("Nama kelompok tidak boleh kosong.");
+        return;
+      }
+      const response = await apiPost({ action: 'addKelompok', name: newName });
+      if (response.success) {
+        message.textContent = `Kelompok "${newName}" berhasil ditambahkan.`;
+        modalKelompok.classList.add("hidden");
+        await loadData();
+      } else {
+        alert(response.error || 'Gagal menambahkan kelompok.');
+      }
+    });
+
+    addBarangBtn.addEventListener("click", () => {
+      newBarangName.value = "";
+      newBarangKelompok.value = "";
+      modalBarang.classList.remove("hidden");
+    });
+
+    cancelBarangBtn.addEventListener("click", () => {
+      modalBarang.classList.add("hidden");
+    });
+
+    saveBarangBtn.addEventListener("click", async () => {
+      const newName = newBarangName.value.trim();
+      const kelompokId = newBarangKelompok.value;
+      if (!newName) {
+        alert("Nama barang tidak boleh kosong.");
+        return;
+      }
+      if (!kelompokId) {
+        alert("Pilih kelompok untuk barang baru.");
+        return;
+      }
+      const response = await apiPost({ action: 'addBarang', name: newName, kelompokId: kelompokId });
+      if (response.success) {
+        message.textContent = `Barang "${newName}" berhasil ditambahkan ke kelompok.`;
+        modalBarang.classList.add("hidden");
+        await loadData();
+      } else {
+        alert(response.error || 'Gagal menambahkan barang.');
+      }
+    });
+
+    // Initialize
+    loadData();
+
+  </script>
+</body>
+</html>
